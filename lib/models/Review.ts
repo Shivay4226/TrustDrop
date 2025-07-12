@@ -43,16 +43,39 @@ const ReviewSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    // 🆕 Company Fields
+    companyName: {
+      type: String,
+      trim: true,
+    },
+    companyUrl: {
+      type: String,
+      trim: true,
+    },
+
+    // 🆕 Product Fields
+    productName: {
+      type: String,
+      trim: true,
+    },
+    productUrl: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,
-  },
+  }
 )
 
-// Create indexes for better query performance
+// Indexes for performance
 ReviewSchema.index({ hashtags: 1 })
 ReviewSchema.index({ sentiment: 1 })
 ReviewSchema.index({ rating: 1 })
 ReviewSchema.index({ createdAt: -1 })
+ReviewSchema.index({ companyName: 1 })
+ReviewSchema.index({ productName: 1 })
+
 
 export const Review = mongoose.models.Review || mongoose.model("Review", ReviewSchema)

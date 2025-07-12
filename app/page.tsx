@@ -4,25 +4,13 @@ import { Badge } from "@/components/ui/badge"
 import { Star, MessageSquare, Bookmark, Shield, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { ScrollToTopButton } from "@/components/ScrollToTopButton"
 
 export default async function HomePage() {
-  // const trendingTags = [
-  //   "#BuildQuality",
-  //   "#Returns",
-  //   "#CustomerService",
-  //   "#DeliveryIssue",
-  //   "#ValueForMoney",
-  //   "#UserExperience",
-  //   "#ProductDesign",
-  //   "#Support",
-  // ]
-
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
   const res = await fetch(`${baseUrl}/api/reviews/tag/trending`, {
     cache: "no-store",
   });
-
   const trendingTags = await res.json();
 
   const features = [
@@ -60,27 +48,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">TrustDrop</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/explore">
-              <Button variant="ghost">Explore</Button>
-            </Link>
-            <Link href="/bookmarks">
-              <Button variant="ghost">Bookmarks</Button>
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
@@ -108,21 +75,23 @@ export default async function HomePage() {
           </div>
 
           {/* Trending Hashtags */}
-          <div className="mb-16">
-            <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Trending Now</h3>
-            <div className="flex flex-wrap justify-center gap-2">
-              {trendingTags.map((item: any) => (
-                <Link key={item.tag} href={`/tag/${item.tag.slice(1)}`}>
-                  <Badge
-                    variant="secondary"
-                    className="hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                  >
-                    {item.tag}
-                  </Badge>
-                </Link>
-              ))}
+          {trendingTags.length > 0 && (
+            <div className="mb-16">
+              <h3 className="text-lg font-semibold mb-4 text-muted-foreground">Trending Now</h3>
+              <div className="flex flex-wrap justify-center gap-2">
+                {trendingTags.map((item: any) => (
+                  <Link key={item.tag} href={`/tag/${item.tag.slice(1)}`}>
+                    <Badge
+                      variant="secondary"
+                      className="hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                    >
+                      {item.tag}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -201,6 +170,7 @@ export default async function HomePage() {
           </div>
         </div>
       </footer>
+      <ScrollToTopButton />
     </div>
   )
 }

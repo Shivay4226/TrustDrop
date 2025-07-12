@@ -2,15 +2,42 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Search, Bookmark, ArrowLeft, Heart } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Star,
+  Search,
+  Bookmark,
+  ArrowLeft,
+  Heart,
+  Rows,
+  LayoutGrid,
+  LayoutPanelTop,
+  Grid3x3,
+} from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { HashtagParser } from "@/components/hashtag-parser"
+import { ReviewTable } from "@/components/ReviewTable"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 
 interface Review {
   _id: string
@@ -24,6 +51,10 @@ interface Review {
   sentimentScore: number
   createdAt: string
   reactions: number
+  companyName?: string
+  companyUrl?: string
+  productName?: string
+  productUrl?: string
 }
 
 export default function ExplorePage() {
@@ -34,6 +65,8 @@ export default function ExplorePage() {
   const [sentimentFilter, setSentimentFilter] = useState("all")
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<"card" | "grid">("card")
+  const [cardColumns, setCardColumns] = useState<"1" | "2" | "4">("1")
 
   useEffect(() => {
     fetchReviews()
@@ -80,16 +113,22 @@ export default function ExplorePage() {
         (review) =>
           review.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           review.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          review.hashtags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())),
+          review.hashtags.some((tag) =>
+            tag.toLowerCase().includes(searchTerm.toLowerCase())
+          )
       )
     }
 
     if (ratingFilter !== "all") {
-      filtered = filtered.filter((review) => review.rating >= Number.parseInt(ratingFilter))
+      filtered = filtered.filter(
+        (review) => review.rating >= Number.parseInt(ratingFilter)
+      )
     }
 
     if (sentimentFilter !== "all") {
-      filtered = filtered.filter((review) => review.sentiment === sentimentFilter)
+      filtered = filtered.filter(
+        (review) => review.sentiment === sentimentFilter
+      )
     }
 
     setFilteredReviews(filtered)
@@ -126,18 +165,38 @@ export default function ExplorePage() {
               <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold">Explore Reviews</h1>
-            <p className="text-muted-foreground">Discover authentic experiences from the community</p>
+          <div className="flex-1">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold">Explore Reviews</h1>
+                <p className="text-muted-foreground">
+                  Discover authentic experiences from the community
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "card" ? "default" : "outline"}
+                  onClick={() => setViewMode("card")}
+                >
+                  <Rows className="w-4 h-4 mr-1" /> Card View
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="w-4 h-4 mr-1" /> Table View
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Filters */}
+        {/* Filters + Toggle Group */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+              <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     placeholder="Search reviews, hashtags..."
@@ -146,63 +205,105 @@ export default function ExplorePage() {
                     className="pl-10"
                   />
                 </div>
+                <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Filter by rating" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Ratings</SelectItem>
+                    <SelectItem value="4">4+ Stars</SelectItem>
+                    <SelectItem value="3">3+ Stars</SelectItem>
+                    <SelectItem value="2">2+ Stars</SelectItem>
+                    <SelectItem value="1">1+ Stars</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sentimentFilter} onValueChange={setSentimentFilter}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Filter by sentiment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sentiments</SelectItem>
+                    <SelectItem value="positive">Positive</SelectItem>
+                    <SelectItem value="neutral">Neutral</SelectItem>
+                    <SelectItem value="negative">Negative</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={ratingFilter} onValueChange={setRatingFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Filter by rating" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Ratings</SelectItem>
-                  <SelectItem value="4">4+ Stars</SelectItem>
-                  <SelectItem value="3">3+ Stars</SelectItem>
-                  <SelectItem value="2">2+ Stars</SelectItem>
-                  <SelectItem value="1">1+ Stars</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={sentimentFilter} onValueChange={setSentimentFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Filter by sentiment" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sentiments</SelectItem>
-                  <SelectItem value="positive">Positive</SelectItem>
-                  <SelectItem value="neutral">Neutral</SelectItem>
-                  <SelectItem value="negative">Negative</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>
+        <div className="flex items-center justify-end gap-4 mb-6 flex-wrap">
+          {viewMode === "card" && (
+            <ToggleGroup
+              variant="outline"
+              type="single"
+              value={cardColumns}
+              onValueChange={(val) => setCardColumns(val as "1" | "2" | "4")}
+            >
+              <ToggleGroupItem value="1" aria-label="Toggle single column">
+                <LayoutPanelTop className="w-4 h-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="2" aria-label="Toggle two columns">
+                <LayoutGrid className="w-4 h-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="3" aria-label="Toggle four columns">
+                <Grid3x3 className="w-4 h-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          )}
+        </div>
 
-        {/* Reviews */}
-        <div className="space-y-6">
-          {filteredReviews.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <p className="text-muted-foreground">No reviews found matching your criteria.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredReviews.map((review) => (
-              <Card key={review._id} className="hover:shadow-lg transition-shadow">
+        {/* Views */}
+        {filteredReviews.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-muted-foreground">
+                No reviews found matching your criteria.
+              </p>
+            </CardContent>
+          </Card>
+        ) : viewMode === "card" ? (
+          <div
+            className={`grid gap-6 ${cardColumns === "1"
+              ? "grid-cols-1"
+              : cardColumns === "2"
+                ? "grid-cols-1 md:grid-cols-2"
+                : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4"
+              }`}
+          >
+            {filteredReviews.map((review) => (
+              <Card
+                key={review._id}
+                className="hover:shadow-lg transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarFallback className="bg-primary text-primary-foreground">{review.avatar}</AvatarFallback>
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {review.avatar}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <CardTitle className="text-lg">{review.title}</CardTitle>
-                        <CardDescription>
-                          by {review.pseudonym} • {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
+                        <CardDescription className="text-sm text-muted-foreground">
+                          by {review.pseudonym} • {" "}
+                          {formatDistanceToNow(new Date(review.createdAt), {
+                            addSuffix: true,
+                          })}
                         </CardDescription>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => toggleBookmark(review._id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => toggleBookmark(review._id)}
+                    >
                       <Bookmark
-                        className={`w-4 h-4 ${
-                          bookmarkedIds.includes(review._id) ? "fill-current text-primary" : "text-muted-foreground"
-                        }`}
+                        className={`w-4 h-4 ${bookmarkedIds.includes(review._id)
+                          ? "fill-current text-primary"
+                          : "text-muted-foreground"
+                          }`}
                       />
                     </Button>
                   </div>
@@ -213,34 +314,20 @@ export default function ExplorePage() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-4 h-4 ${
-                            star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
-                          }`}
+                          className={`w-4 h-4 ${star <= review.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground"
+                            }`}
                         />
                       ))}
                     </div>
-                    <Badge variant={getSentimentColor(review.sentiment)}>{review.sentiment}</Badge>
+                    <Badge variant={getSentimentColor(review.sentiment)}>
+                      {review.sentiment}
+                    </Badge>
                   </div>
-
                   <div className="mb-4">
                     <HashtagParser text={review.content} />
                   </div>
-
-                  {review.hashtags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {review.hashtags.map((tag) => (
-                        <Link key={tag} href={`/tag/${tag.slice(1)}`}>
-                          <Badge
-                            variant="outline"
-                            className="hover:bg-primary hover:text-primary-foreground cursor-pointer"
-                          >
-                            {tag}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Heart className="w-4 h-4" />
@@ -249,10 +336,12 @@ export default function ExplorePage() {
                   </div>
                 </CardContent>
               </Card>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <ReviewTable reviews={filteredReviews} />
+        )}
       </div>
     </div>
   )
-}
+} 

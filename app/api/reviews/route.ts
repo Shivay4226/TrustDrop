@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
     const body = await request.json()
 
-    const review = new Review({
+   const review = new Review({
       title: body.title,
       content: body.content,
       rating: body.rating,
@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
       sentiment: body.sentiment || "neutral",
       sentimentScore: body.sentimentScore || 0,
       reactions: 0,
+      companyName: body.companyName || "",
+      companyUrl: body.companyUrl || "",
+      productName: body.productName || "",
+      productUrl: body.productUrl || "",
     })
 
     await review.save()

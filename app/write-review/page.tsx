@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,18 +17,23 @@ import { analyzeSentiment } from "@/lib/sentiment-analyzer"
 
 export default function WriteReviewPage() {
   const router = useRouter()
+
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [rating, setRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Get or generate user data
+  // Toggle between company and product
+  const [reviewType, setReviewType] = useState<"company" | "product">("product")
+  const [companyName, setCompanyName] = useState("")
+  const [companyUrl, setCompanyUrl] = useState("")
+  const [productName, setProductName] = useState("")
+  const [productUrl, setProductUrl] = useState("")
+
   const [userData] = useState(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("trustdrop_user")
-      if (stored) {
-        return JSON.parse(stored)
-      }
+      if (stored) return JSON.parse(stored)
       const newUser = {
         pseudonym: generatePseudonym(),
         avatar: generateAvatar(),
@@ -66,6 +69,10 @@ export default function WriteReviewPage() {
           hashtags,
           sentiment: sentiment?.label || "neutral",
           sentimentScore: sentiment?.score || 0,
+          companyName: reviewType === "company" ? companyName : "",
+          companyUrl: reviewType === "company" ? companyUrl : "",
+          productName: reviewType === "product" ? productName : "",
+          productUrl: reviewType === "product" ? productUrl : "",
         }),
       })
 
@@ -141,6 +148,76 @@ export default function WriteReviewPage() {
                   </div>
                 </div>
 
+                {/* Toggle: Company or Product */}
+                <div>
+                  <Label>Review Type</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant={reviewType === "product" ? "default" : "outline"}
+                      onClick={() => setReviewType("product")}
+                    >
+                      Product
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={reviewType === "company" ? "default" : "outline"}
+                      onClick={() => setReviewType("company")}
+                    >
+                      Company
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Conditional Fields */}
+                {reviewType === "company" && (
+                  <>
+                    <div>
+                      <Label htmlFor="companyName">Company Name</Label>
+                      <Input
+                        id="companyName"
+                        placeholder="e.g., Amazon"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="companyUrl">Company URL (optional)</Label>
+                      <Input
+                        id="companyUrl"
+                        placeholder="https://amazon.com"
+                        value={companyUrl}
+                        onChange={(e) => setCompanyUrl(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {reviewType === "product" && (
+                  <>
+                    <div>
+                      <Label htmlFor="productName">Product Name</Label>
+                      <Input
+                        id="productName"
+                        placeholder="e.g., Echo Dot 5th Gen"
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="productUrl">Product URL (optional)</Label>
+                      <Input
+                        id="productUrl"
+                        placeholder="https://amazon.com/product/123"
+                        value={productUrl}
+                        onChange={(e) => setProductUrl(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
                 <div>
                   <Label htmlFor="content">Your Review</Label>
                   <Textarea
@@ -175,8 +252,8 @@ export default function WriteReviewPage() {
                           sentiment.label === "positive"
                             ? "default"
                             : sentiment.label === "negative"
-                              ? "destructive"
-                              : "secondary"
+                            ? "destructive"
+                            : "secondary"
                         }
                       >
                         {sentiment.label} ({Math.round(sentiment.score * 100)}%)
