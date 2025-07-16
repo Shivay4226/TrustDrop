@@ -38,6 +38,12 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+} from "@/components/ui/dialog"
+import Image from "next/image"
 
 interface Review {
   _id: string
@@ -55,6 +61,7 @@ interface Review {
   companyUrl?: string
   productName?: string
   productUrl?: string
+  images?: { url: string }[]
 }
 
 export default function ExplorePage() {
@@ -67,6 +74,7 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<"card" | "grid">("card")
   const [cardColumns, setCardColumns] = useState<"1" | "2" | "4">("1")
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   useEffect(() => {
     fetchReviews()
@@ -324,6 +332,33 @@ export default function ExplorePage() {
                     <Badge variant={getSentimentColor(review.sentiment)}>
                       {review.sentiment}
                     </Badge>
+                  </div>
+                  <div>
+                    {Array.isArray(review.images) && review.images?.length > 0 && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Image
+                              src={review.images[0].url}
+                              alt={review.title}
+                              width={96}
+                              height={96}
+                              unoptimized
+                              className="rounded-md object-cover w-24 h-24 cursor-pointer"
+                              onClick={() => review.images && setPreviewImage(review.images[0].url)}
+                            />
+                          </DialogTrigger>  
+                          <DialogContent className="max-w-fit p-0 bg-transparent border-none shadow-none">
+                            <Image
+                              src={previewImage || review.images[0].url}
+                              alt="Preview"
+                              width={800}
+                              height={600}
+                              unoptimized
+                              className="rounded-lg max-h-[90vh] w-auto h-auto"
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
                   </div>
                   <div className="mb-4">
                     <HashtagParser text={review.content} />

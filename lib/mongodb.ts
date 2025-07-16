@@ -14,6 +14,7 @@ if (!cached) {
 
 export async function connectToDatabase() {
   if (cached.conn) {
+    console.log("✅ Already connected to MongoDB.")
     return cached.conn
   }
 
@@ -23,6 +24,7 @@ export async function connectToDatabase() {
     }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log("✅ MongoDB connection established.")
       return mongoose
     })
   }
@@ -31,6 +33,7 @@ export async function connectToDatabase() {
     cached.conn = await cached.promise
   } catch (e) {
     cached.promise = null
+    console.error("❌ MongoDB connection failed:", e)
     throw e
   }
 

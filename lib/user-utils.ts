@@ -53,7 +53,7 @@ export function generatePseudonym(): string {
   return `${adjective}${noun}${number}`
 }
 
-export function generateAvatar(): string {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  return letters[Math.floor(Math.random() * letters.length)]
+export function generateAvatar(pseudonym: string): string {
+  return pseudonym?.charAt(0).toUpperCase() || "A"
 }
+

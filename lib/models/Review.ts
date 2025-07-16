@@ -63,6 +63,15 @@ const ReviewSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // 🖼️ Image Fields
+    images: [
+      {
+        url: { type: String },
+        filename: { type: String },
+        size: { type: Number },
+        mimetype: { type: String },
+      }
+    ],
   },
   {
     timestamps: true,

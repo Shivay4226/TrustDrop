@@ -14,6 +14,7 @@ type User = {
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  console.log(user)
 
   useEffect(() => {
     const stored = localStorage.getItem("trustdrop_user");
