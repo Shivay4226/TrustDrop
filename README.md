@@ -3,6 +3,8 @@
 > **Honest Reviews, Anonymous Voices**  
 A privacy-first platform to share and explore authentic reviews — no login, no fear, just trust.
 
+🌐 **Live Demo:** [https://trust-drop.vercel.app](https://trust-drop.vercel.app)
+
 ---
 
 ## Preview
@@ -45,5 +47,3 @@ A privacy-first platform to share and explore authentic reviews — no login, no
 - **MongoDB** with Mongoose ODM
 - Server API routes with `app/api/`
 - Custom server utilities in `/lib/`
-
----
